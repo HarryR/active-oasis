@@ -258,8 +258,8 @@ class Immutable(object):                                        # {{{1
     return hash(tuple(self.iteritems()))
                                                                 # }}}1
 
-FUNCTIONS   = P.Word(P.alphas.upper(), P.alphas + "!")
-VARIABLES   = P.Word(P.alphas.lower(), P.alphas + "'")
+FUNCTIONS   = P.Word(P.alphas.upper(), P.alphanums + "!")
+VARIABLES   = P.Word(P.alphas.lower(), P.alphanums + "'")
 PRE1, PRE2  = "xy"
 EASYFUNCS   = "x y z x' y' z'".split()
 
