@@ -24,7 +24,7 @@ This may useful in the following scenarios:
  * Complexity reduction
  * Optimisation
 
-It uses the [trstools.py](https://github.com/obfusk/trstools.py) term rewriting library by [Felix C. Stegerman](flx@obfusk.net) with some minor modifications, and the [py_ecc](https://github.com/ethereum/py_ecc) library by [Vitalik Buterin](https://vitalik.ca) for the BN256 curve implementation.
+It uses the [trstools.py](https://github.com/obfusk/trstools.py) term rewriting library by [Felix C. Stegerman](mailto:flx@obfusk.net) with some minor modifications, and the [py_ecc](https://github.com/ethereum/py_ecc) library by [Vitalik Buterin](https://vitalik.ca) for the BN256 curve implementation.
 
 ## Interested?
 
@@ -36,5 +36,7 @@ I am open to insights about extra things which can be added using simple term re
  * Curve features (division, inversion etc.)
 
 Feel free to create an Issue if you think of anything, even adding very basic relationships between integers can greatly improve this tools ability to find interesting or unexpected solutions.
+
+Or, if you find anything which this tool can't make permutations from where you know there are alternative and simple methods of coming to the same result.
 
 e.g. think of simplifying operations like `(x*2)-x = x`
