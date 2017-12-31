@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import traceback
 from oasis import rands, eval_expr
 from collections import defaultdict
 
@@ -20,7 +21,7 @@ funcDefs = dict(
 	]
 )
 
-args = dict(x=rands(), y=rands(), z=rands())
+args = dict(x=rands(), y=rands()) #, z=rands())
 
 
 def genArgList(argTypeList, depth):
@@ -47,14 +48,28 @@ def genArgs(argType, depth=3):
 
 
 all_results = defaultdict(list)
+iterdepth=2
 
+count = 0
 for funcList in funcDefs.values():
 	for funcName, funcArgTypes, funcRetType in funcList:
-		for arg in genArgList(funcArgTypes, 2):
+		for arg in genArgList(funcArgTypes, iterdepth):
 			expr = ''.join([funcName, '(', arg, ')'])
-			result = eval_expr(expr, args)
-			all_results[result].append(expr)
-			print(expr, '=', result, file=sys.stderr)
+			count += 1
+			continue
+			try:
+				result = eval_expr(expr, args)
+				all_results[result].append(expr)
+				print(expr, '=', result, file=sys.stderr)
+			except Exception as ex:
+				print("Error evaluating:", expr, file=sys.stderr)
+				traceback.print_exc(file=sys.stderr)
+				print("", file=sys.stderr)
+
+print("Count:", count)
+sys.exit()
+
+print(args)
 
 for result, expressions in all_results.items():
 	print("Result: ", result)

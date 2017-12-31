@@ -9,12 +9,7 @@ from py_ecc.bn128 import add, multiply, double, curve_order, field_modulus, G1, 
 from py_ecc.bn128.bn128_field_elements import inv
 
 
-def bytes_to_int(x):
-    o = 0
-    for b in x:
-        o = (o << 8) + ord(b)
-    return o
-
+bytes_to_int = lambda x: reduce(lambda o, b: (o << 8) + ord(b), [0] + list(x))
 rands = lambda: randint(1, curve_order - 1)
 sbmul = lambda s: multiply(G1, s)
 hashs = lambda *x: bytes_to_int(sha256('.'.join(['%X' for _ in range(0, len(x))]) % x).digest()) % curve_order
@@ -29,6 +24,7 @@ expr_funcs = dict(
 	Sub=lambda x, y: (x - y) % curve_order,
 	Neg=lambda x: -x % curve_order,
 	Inv=lambda x: inv(x, curve_order),
+	#InvMul=lambda x, y: (x * pow(y, field_modulus-2, field_modulus)),
 	Add=lambda x, y: (x + y) % curve_order,
 	Mul=lambda x, y: (x * y) % curve_order,
 	ScalarMult=multiply,
@@ -63,16 +59,23 @@ rs = [
 	# Addition
 	T.rule("Add(y, Double(x)) -> Add(Double(x), y)"),
 	T.rule("Add(y, Double(y)) -> Add(Double(y), y)"),
+	T.rule("Add(Mul(x, y),Mul(x,z)) -> Mul(x, Add(y,z))"),
+	T.rule("PointAdd(ScalarMult(x, y), ScalarMult(x, z)) -> ScalarMult(x, Add(y, z))"),
 
 	# Subtraction
 	T.rule("Sub(Add(x, y), y) -> x"),
 	T.rule("Sub(Add(x, y), x) -> y"),
+	T.rule("Sub(x, Add(x, y)) -> x"),
+	T.rule("Sub(y, Add(x, y)) -> y"),
 	T.rule("Sub(Double(x), x) -> x"),
 
 	# Multiplication
 	T.rule("Mul(x, Mul(y, z)) -> Mul(Mul(x, y), z)"),
 	T.rule("Mul(x, Half(y)) -> Half(Mul(x, y))"),
 	T.rule("Mul(x, Double(y)) -> Double(Mul(x, y))"),
+
+	# Inverse Multiplication
+	T.rule("Mul(Mul(x, y), Inv(y)) -> x"),
 
 	# Multiply by base point
 	# `G(x)` is an opaque value
@@ -225,6 +228,17 @@ if __name__ == "__main__":
 			vcsum="Add(v0csum, v1csum)",
 			verify="Equal(v1acc, vcsum)"
 		))
+
+	#a = T.term("Add(Mul(g, a), Mul(g, p))")
+	#a = T.term("PointAdd(PointAdd(G(a), ScalarMult(G(p), t)), G(x))")
+	#a = T.term("PointAdd(G(w), ScalarMult(G(p), s))")
+	#a = T.term("Mul(Mul(x, y), Inv(y))")
+	a = T.withvars(
+		T.term("s"), dict(
+			s="Add(d, Mul(k, r))",
+			r="Add(Mul(k, x), Hs(m))",
+		))
+	a = T.term("ScalarMult(PointAdd(G(a), G(b)), c)")
 
 	print("")
 	print("Expr:", a)
